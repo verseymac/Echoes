@@ -74,10 +74,19 @@ async function start() {
 
     currentLocation = await getUserLocation();
 
+    console.log("User location received:", currentLocation);
+    
     initializeMap(
       currentLocation.lat,
       currentLocation.lng
     );
+
+    addMarker({
+  title: "You are here",
+  lat: currentLocation.lat,
+  lng: currentLocation.lng,
+  article: null
+}, showDetails);
 
     await loadHistory();
 
