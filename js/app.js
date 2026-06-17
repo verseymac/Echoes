@@ -1,22 +1,18 @@
-import { getUserLocation }
-from "./geolocation.js";
+import { getUserLocation } from "./geolocation.js";
 
 import {
   initializeMap,
   addMarker,
   clearMarkers
-}
-from "./map.js";
+} from "./map.js";
 
 import {
-  getNearbyHistory
-}
-from "./wikidata.js";
+  fetchNearbyEchoes
+} from "./wikidata.js";
 
 import {
   showDetails
-}
-from "./ui.js";
+} from "./ui.js";
 
 let currentLocation;
 
@@ -24,57 +20,48 @@ async function loadHistory() {
 
   clearMarkers();
 
-  addMarker(
-  {
+  // 🔹 Test marker (keep for debugging)
+  addMarker({
     name: "Test Echo",
     lat: currentLocation.lat + 0.003,
     lon: currentLocation.lon + 0.003,
     article: "https://en.wikipedia.org/wiki/History"
-  },
-  showDetails
-);
+  }, showDetails);
 
   const radius =
     document.getElementById("radius").value;
 
-  const results =
-    await getNearbyHistory(
-      currentLocation.lat,
-      currentLocation.lon,
-      radius
-    );
+  try {
 
-    console.log(results);
+    const results =
+      await fetchNearbyEchoes(
+        currentLocation.lat,
+        currentLocation.lon,
+        radius
+      );
+
+    console.log("Echoes loaded:", results);
 
     results.forEach(result => {
 
-    const coord =
-      result.coord.value;
+      const item = {
 
-    const match =
-      coord.match(
-        /Point\\(([-0-9.]+) ([-0-9.]+)\\)/
-      );
+        name: result.title,
+        lat: result.lat,
+        lon: result.lon,
+        article: null // no Wikipedia yet in V0.2
 
-    if (!match) return;
+      };
 
-    const item = {
+      addMarker(item, showDetails);
 
-      name:
-        result.placeLabel.value,
+    });
 
-      lon:
-        parseFloat(match[1]),
+  } catch (error) {
 
-      lat:
-        parseFloat(match[2]),
+    console.error("Failed to load Echoes:", error);
 
-      article:
-        result.article?.value || null
-    };
-
-    addMarker(item, showDetails);
-  });
+  }
 }
 
 async function start() {
