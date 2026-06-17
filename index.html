@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Echoes</title>
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet/dist/leaflet.css"
+  />
+
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+
+  <header>
+    <h1>Echoes</h1>
+    <p class="tagline">
+      Discover the echoes of history around you
+    </p>
+  </header>
+
+  <div id="controls">
+    <label>
+      Search Radius:
+      <select id="radius">
+        <option value="1">1 km</option>
+        <option value="5" selected>5 km</option>
+        <option value="10">10 km</option>
+        <option value="25">25 km</option>
+      </select>
+    </label>
+  </div>
+
+  <div id="map"></div>
+
+  <div id="details">
+    <h2>Nearby Echoes</h2>
+    <div id="content">
+      Select an Echo to learn its story
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script type="module" src="js/app.js"></script>
+
+</body>
+</html>

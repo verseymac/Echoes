@@ -1,0 +1,52 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background: #f8fafc;
+}
+
+header {
+  background: #1f2937;
+  color: white;
+  padding: 16px;
+}
+
+header h1 {
+  margin: 0;
+}
+
+.tagline {
+  margin-top: 6px;
+  opacity: 0.85;
+  font-size: 0.95rem;
+}
+
+#controls {
+  padding: 12px 16px;
+  background: white;
+  border-bottom: 1px solid #ddd;
+}
+
+#map {
+  height: 60vh;
+  width: 100%;
+}
+
+#details {
+  padding: 16px;
+  background: white;
+}
+
+#details h2 {
+  margin-top: 0;
+}
+
+#content a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+#content a:hover {
+  text-decoration: underline;
+}
