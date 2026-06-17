@@ -1,98 +1,23 @@
-import { getUserLocation } from "./geolocation.js";
+const results =
+  await fetchNearbyEchoes(
+    currentLocation.lat,
+    currentLocation.lon,
+    radius
+  );
 
-import {
-  initializeMap,
-  addMarker,
-  clearMarkers
-} from "./map.js";
+console.log("Echoes loaded:", results);
 
-import {
-  fetchNearbyEchoes
-} from "./wikidata.js";
+results.forEach(result => {
 
-import {
-  showDetails
-} from "./ui.js";
+  const item = {
 
-let currentLocation;
+    title: result.title,
+    lat: Number(result.lat),
+    lng: Number(result.lon),
+    article: null
 
-async function loadHistory() {
+  };
 
-  clearMarkers();
+  addMarker(item, showDetails);
 
-  // 🔹 Test marker (keep for debugging)
-  addMarker({
-    name: "Test Echo",
-    lat: currentLocation.lat + 0.003,
-    lon: currentLocation.lon + 0.003,
-    article: "https://en.wikipedia.org/wiki/History"
-  }, showDetails);
-
-  const radius =
-    document.getElementById("radius").value;
-
-  try {
-
-    const results =
-      await fetchNearbyEchoes(
-        currentLocation.lat,
-        currentLocation.lon,
-        radius
-      );
-
-    console.log("Echoes loaded:", results);
-
-    results.forEach(result => {
-
-      const item = {
-
-        name: result.title,
-        lat: result.lat,
-        lon: result.lon,
-        article: null // no Wikipedia yet in V0.2
-
-      };
-
-      addMarker(item, showDetails);
-
-    });
-
-  } catch (error) {
-
-    console.error("Failed to load Echoes:", error);
-
-  }
-}
-
-async function start() {
-
-  try {
-
-    currentLocation =
-      await getUserLocation();
-
-    initializeMap(
-      currentLocation.lat,
-      currentLocation.lon
-    );
-
-    await loadHistory();
-
-    document
-      .getElementById("radius")
-      .addEventListener(
-        "change",
-        loadHistory
-      );
-
-  } catch (error) {
-
-    console.error(error);
-
-    alert(
-      "Please allow location access to use Echoes."
-    );
-  }
-}
-
-start();
+});
