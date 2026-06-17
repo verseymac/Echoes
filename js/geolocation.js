@@ -1,3 +1,4 @@
+
 export function getUserLocation() {
   return new Promise((resolve, reject) => {
 
@@ -11,7 +12,7 @@ export function getUserLocation() {
 
         resolve({
           lat: position.coords.latitude,
-          lon: position.coords.longitude
+          lng: position.coords.longitude
         });
 
       },
