@@ -1,39 +1,44 @@
+
 let map;
 let markers = [];
 
-export function initializeMap(lat, lon) {
+// ----------------------
+// INITIALISE MAP
+// ----------------------
+export function initializeMap(lat, lng) {
 
-  map = L.map("map").setView([lat, lon], 14);
+  map = L.map("map").setView([lat, lng], 13);
 
-  L.tileLayer(
-    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {
-      attribution: "&copy; OpenStreetMap contributors"
-    }
-  ).addTo(map);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "© OpenStreetMap contributors"
+  }).addTo(map);
 
-  L.marker([lat, lon])
-    .addTo(map)
-    .bindPopup("You are here");
 }
 
-export function clearMarkers() {
+// ----------------------
+// ADD MARKER
+// ----------------------
+export function addMarker(item, onClick) {
 
-  markers.forEach(marker => {
-    map.removeLayer(marker);
+  if (!item.lat || !item.lng) return;
+
+  const marker = L.marker([item.lat, item.lng]).addTo(map);
+
+  marker.bindPopup(`<b>${item.title}</b>`);
+
+  marker.on("click", () => {
+    if (onClick) onClick(item);
   });
 
-  markers = [];
+  markers.push(marker);
 }
 
-export function addMarker(item, callback) {
+// ----------------------
+// CLEAR MARKERS
+// ----------------------
+export function clearMarkers() {
 
-  const marker = L.marker([
-    item.lat,
-    item.lon
-  ]).addTo(map);
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
 
-  marker.on("click", () => callback(item));
-
-  markers.push(marker);
 }
