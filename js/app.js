@@ -37,7 +37,7 @@ async function loadHistory() {
     // Test marker (debug only)
     addMarker({
       title: "Test Echo",
-      lat: currentLocation.lat + 0.003,
+      lat: currentLocation.lat + 0.05,
       lng: currentLocation.lng + 0.003,
       article: "https://en.wikipedia.org/wiki/History"
     }, showDetails);
@@ -82,11 +82,11 @@ async function start() {
     );
 
     addMarker({
-  title: "You are here",
-  lat: currentLocation.lat,
-  lng: currentLocation.lng,
-  article: null
-}, showDetails);
+      title: "You are here",
+      lat: currentLocation.lat,
+      lng: currentLocation.lng,
+      article: null
+    }, showDetails);
 
     await loadHistory();
 

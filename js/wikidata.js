@@ -3,14 +3,21 @@
 export async function fetchNearbyEchoes(lat, lon, radius = 5000) {
 
     const query = `
-    [out:json];
-    (
-      node["historic"](around:${radius},${lat},${lon});
-      way["historic"](around:${radius},${lat},${lon});
-      relation["historic"](around:${radius},${lat},${lon});
-    );
-    out center;
-    `;
+[out:json];
+(
+  node["historic"](around:${radius},${lat},${lon});
+  way["historic"](around:${radius},${lat},${lon});
+  relation["historic"](around:${radius},${lat},${lon});
+
+  node["tourism"](around:${radius},${lat},${lon});
+  way["tourism"](around:${radius},${lat},${lon});
+  relation["tourism"](around:${radius},${lat},${lon});
+
+  node["amenity"="monument"](around:${radius},${lat},${lon});
+  way["amenity"="monument"](around:${radius},${lat},${lon});
+);
+out center;
+`;
 
     try {
 
