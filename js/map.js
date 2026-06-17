@@ -29,7 +29,7 @@ export function addMarker(item, onClick) {
   marker.on("click", () => {
     if (onClick) onClick(item);
   });
-
+console.log("Adding marker:", item);
   markers.push(marker);
 }
 
