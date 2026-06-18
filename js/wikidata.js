@@ -59,7 +59,7 @@ console.log(query);
                 };
 
             })
-            .filter(e => e.lat && e.lon);
+            .filter(e => e.lat !== undefined && e.lng !== undefined);
 
     } catch (err) {
 
