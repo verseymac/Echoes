@@ -53,7 +53,7 @@ console.log(query);
                 return {
                     id: el.id,
                     lat,
-                    lon,
+                    lng: lon,
                     title: el.tags?.name || "Unknown Historic Site",
                     type: el.tags?.historic || "historic"
                 };
