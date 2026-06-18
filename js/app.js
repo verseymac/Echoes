@@ -29,7 +29,7 @@ async function loadHistory() {
 
   const radius = Number(
     document.getElementById("radius").value
-  );
+  )*1000;
 
   try {
 
