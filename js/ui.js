@@ -1,3 +1,8 @@
+export function setLoading() {
+  document.getElementById("content").innerHTML =
+    "<p>Searching nearby echoes...</p>";
+}
+
 import { getWikipediaSummary } from "./wikipedia.js";
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -68,13 +73,16 @@ export async function showDetails(item) {
       await getWikipediaSummary(item.title);
 
     if (wiki?.extract) {
-      summary = wiki.extract;
+      summary = 
+      wiki.extract.length > 600
+        ? wiki.extract.substring(0, 600) + "..."
+        : wiki.extract;
     }
 
   } catch (error) {
 
     console.error(
-      "Wikipedia lookup failed:",
+      "No historical summary available.",
       error
     );
 

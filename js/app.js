@@ -8,7 +8,7 @@ import {
 
 import { fetchNearbyEchoes } from "./wikidata.js";
 
-import { showDetails } from "./ui.js";
+import { showDetails, setLoading } from "./ui.js";
 
 let currentLocation;
 
@@ -16,7 +16,7 @@ let currentLocation;
 // LOAD ECHOES
 // ----------------------------
 async function loadHistory() {
-
+  setLoading();
   clearMarkers();
 
   // User marker
