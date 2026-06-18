@@ -42,12 +42,12 @@ async function loadHistory() {
     console.log("Echoes loaded:", results);
 
     // Test marker
-    addMarker({
-      title: "Test Echo",
-      lat: currentLocation.lat + 0.003,
-      lng: currentLocation.lng + 0.003,
-      article: "https://en.wikipedia.org/wiki/History"
-    }, showDetails);
+    // addMarker({
+    //   title: "Test Echo",
+    //   lat: currentLocation.lat + 0.003,
+    //   lng: currentLocation.lng + 0.003,
+    //   article: "https://en.wikipedia.org/wiki/History"
+    // }, showDetails);
 
     if (!results || results.length === 0) {
       console.log("No Echoes found.");
