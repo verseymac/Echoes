@@ -3,8 +3,18 @@ export function showDetails(item) {
   const container =
     document.getElementById("content");
 
+  const formattedType =
+    (item.type || "historic site")
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, c => c.toUpperCase());
+
   container.innerHTML = `
-    <h3>${item.name}</h3>
+    <h3>${item.title}</h3>
+
+    <p>
+      <strong>Type:</strong>
+      ${formattedType}
+    </p>
 
     ${
       item.article

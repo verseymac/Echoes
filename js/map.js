@@ -36,19 +36,9 @@ export function addMarker(item, onClick) {
 
   marker.bindPopup(`<b>${item.title}</b>`);
 
-  // marker.on("click", () => {
-  //   if (onClick) onClick(item);
-  // });
   marker.on("click", () => {
-
-  const type =
-    echo.tags.historic || "Historic Site";
-
-  details.innerHTML = `
-    <h2>${echo.tags.name}</h2>
-    <p><strong>Type:</strong> ${type}</p>
-  `;
-});
+    if (onClick) onClick(item);
+  });
 
   markers.push(marker);
 }

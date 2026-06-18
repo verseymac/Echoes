@@ -58,6 +58,7 @@ async function loadHistory() {
 
       addMarker({
         title: result.title,
+        type: result.type,
         lat: result.lat,
         lng: result.lng,
         article: null
