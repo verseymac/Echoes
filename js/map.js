@@ -28,16 +28,20 @@ export function initializeMap(lat, lng) {
 // ----------------------
 export function addMarker(item, onClick) {
 
+  console.log("Adding marker:", item);
+
   if (!item.lat || !item.lng) return;
 
-  const marker = L.marker([item.lat, item.lng]).addTo(map);
+  const marker = L.circleMarker([item.lat, item.lng], {
+    radius: 10
+  }).addTo(map);
 
   marker.bindPopup(`<b>${item.title}</b>`);
 
   marker.on("click", () => {
     if (onClick) onClick(item);
   });
-console.log("Adding marker:", item);
+
   markers.push(marker);
 }
 
