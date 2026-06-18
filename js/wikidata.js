@@ -1,6 +1,6 @@
 // V0.2 Echoes Data Layer - OpenStreetMap Overpass API
 
-export async function fetchNearbyEchoes(lat, lon, radius = 5000) {
+export async function fetchNearbyEchoes(lat, lon, radius = 25000) {
 
     const query = `
 [out:json];
@@ -30,6 +30,8 @@ out center;
         );
 
         const data = await response.json();
+
+        console.log("Overpass raw data:", data);
 
         return (data.elements || [])
             .map(el => {
