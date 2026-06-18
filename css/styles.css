@@ -55,3 +55,10 @@ header h1 {
   font-size: 24px;
   text-align: center;
 }
+
+.meta {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-top: -6px;
+  margin-bottom: 12px;
+}

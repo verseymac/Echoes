@@ -81,20 +81,15 @@ export async function showDetails(item) {
   }
 
   container.innerHTML = `
-    <h3>${item.title}</h3>
+  <h3>${item.title}</h3>
 
-    <p>
-      <strong>Type:</strong>
-      ${formattedType}
-    </p>
+  <p class="meta">
+    ${formattedType}
+    ${distanceText !== "Unknown" ? ` • ${distanceText} away` : ""}
+  </p>
 
-    <p>
-      <strong>Distance:</strong>
-      ${distanceText}
-    </p>
-
-    <p>
-      ${summary}
-    </p>
-  `;
+  <p>
+    ${summary}
+  </p>
+`;
 }
