@@ -1,3 +1,5 @@
+import { getWikipediaSummary } from "./wikipedia.js";
+
 function calculateDistance(lat1, lon1, lat2, lon2) {
 
   const R = 6371e3;
@@ -25,15 +27,58 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
-export function showDetails(item) {
+export async function showDetails(item) {
 
   const container =
     document.getElementById("content");
 
   const formattedType =
-    (item.type || "historic site")
+    (item.type || "historic_site")
       .replace(/_/g, " ")
       .replace(/\b\w/g, c => c.toUpperCase());
+
+  let distanceText = "Unknown";
+
+  if (
+    item.userLat &&
+    item.userLng &&
+    item.lat &&
+    item.lng
+  ) {
+
+    const distance = calculateDistance(
+      item.userLat,
+      item.userLng,
+      item.lat,
+      item.lng
+    );
+
+    distanceText =
+      distance < 1000
+        ? `${Math.round(distance)}m`
+        : `${(distance / 1000).toFixed(1)}km`;
+  }
+
+  let summary =
+    "No historical summary available.";
+
+  try {
+
+    const wiki =
+      await getWikipediaSummary(item.title);
+
+    if (wiki?.extract) {
+      summary = wiki.extract;
+    }
+
+  } catch (error) {
+
+    console.error(
+      "Wikipedia lookup failed:",
+      error
+    );
+
+  }
 
   container.innerHTML = `
     <h3>${item.title}</h3>
@@ -43,36 +88,13 @@ export function showDetails(item) {
       ${formattedType}
     </p>
 
-    ${
-      item.article
-        ? `
-          <p>
-            <a
-              href="${item.article}"
-              target="_blank"
-            >
-              Read on Wikipedia
-            </a>
-          </p>
-        `
-        : "<p>No Wikipedia article available.</p>"
-    }
-  `;
-
-  const distance = calculateDistance(
-  item.userLat,
-  item.userLng,
-  item.lat,
-  item.lng
-);
-
-const distanceText =
-  distance < 1000
-    ? `${Math.round(distance)}m`
-    : `${(distance / 1000).toFixed(1)}km`;
     <p>
-  <strong>Distance:</strong>
-  ${distanceText}
-</p>
+      <strong>Distance:</strong>
+      ${distanceText}
+    </p>
 
+    <p>
+      ${summary}
+    </p>
+  `;
 }

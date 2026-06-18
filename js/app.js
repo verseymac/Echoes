@@ -22,8 +22,11 @@ async function loadHistory() {
   // User marker
   addMarker({
     title: "You are here",
+    type: "user",
     lat: currentLocation.lat,
     lng: currentLocation.lng,
+    userLat: currentLocation.lat,
+    userLng: currentLocation.lng,
     article: null
   }, showDetails);
 
