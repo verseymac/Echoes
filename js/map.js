@@ -15,13 +15,19 @@ export function initializeMap(lat, lng) {
 
 }
 
-// delete L.Icon.Default.prototype._getIconUrl;
+function getIcon(type) {
 
-// L.Icon.Default.mergeOptions({
-//   iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-//   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-//   shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png"
-// });
+  const icons = {
+    castle: "🏰",
+    memorial: "🕯️",
+    monument: "🗿",
+    archaeological_site: "🏺",
+    ruins: "🏛️",
+    battlefield: "⚔️"
+  };
+
+  return icons[type] || "📍";
+}
 
 // ----------------------
 // ADD MARKER
@@ -32,7 +38,17 @@ export function addMarker(item, onClick) {
 
   if (!item.lat || !item.lng) return;
 
-  const marker = L.marker([item.lat, item.lng]).addTo(map);
+  const icon = L.divIcon({
+  html: getIcon(item.type),
+  className: "echo-icon",
+  iconSize: [30, 30]
+});
+
+const marker =
+  L.marker(
+    [item.lat, item.lng],
+    { icon }
+  ).addTo(map);
 
   marker.bindPopup(`<b>${item.title}</b>`);
 

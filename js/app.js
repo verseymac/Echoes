@@ -57,12 +57,14 @@ async function loadHistory() {
     results.forEach(result => {
 
       addMarker({
-        title: result.title,
-        type: result.type,
-        lat: result.lat,
-        lng: result.lng,
-        article: null
-      }, showDetails);
+      title: result.title,
+      type: result.type,
+      lat: result.lat,
+      lng: result.lng,
+      userLat: currentLocation.lat,
+      userLng: currentLocation.lng,
+      article: null
+    }, showDetails);
 
     });
 

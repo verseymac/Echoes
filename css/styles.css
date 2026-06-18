@@ -50,3 +50,8 @@ header h1 {
 #content a:hover {
   text-decoration: underline;
 }
+
+.echo-icon {
+  font-size: 24px;
+  text-align: center;
+}
