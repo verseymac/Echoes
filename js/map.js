@@ -1,6 +1,6 @@
-// import L from "leaflet";
 let map;
 let markers = [];
+const markerMap = {};
 
 // ----------------------
 // INITIALISE MAP
@@ -12,11 +12,14 @@ export function initializeMap(lat, lng) {
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "© OpenStreetMap contributors"
   }).addTo(map);
-
 }
 
+// ----------------------
+// ICON LOGIC
+// ----------------------
 function getIcon(type, discovered) {
 
+  // Hidden state (fog of war)
   if (!discovered) return "❓";
 
   const icons = {
@@ -41,28 +44,45 @@ export function addMarker(item, onClick) {
   if (!item.lat || !item.lng) return;
 
   const icon = L.divIcon({
-  html: getIcon(item.type, item.discovered),
-  className: "echo-icon",
-  iconSize: [30, 30]
-});
+    html: getIcon(item.type, item.discovered),
+    className: "echo-icon",
+    iconSize: [30, 30]
+  });
 
-const marker =
-  L.marker(
-    [item.lat, item.lng],
-    { icon }
-  ).addTo(map);
+  const marker =
+    L.marker([item.lat, item.lng], { icon })
+      .addTo(map);
 
   marker.bindPopup(`<b>${item.title}</b>`);
 
   marker.on("click", () => {
-
-  if (onClick) {
-    onClick(item);
-  }
-
-});
+    if (onClick) onClick(item);
+  });
 
   markers.push(marker);
+
+  // Store marker for later updates
+  if (item.id !== undefined && item.id !== null) {
+    markerMap[item.id] = marker;
+  }
+}
+
+// ----------------------
+// REVEAL MARKER (DISCOVERY)
+// ----------------------
+export function revealMarker(id, type) {
+
+  const marker = markerMap[id];
+
+  if (!marker) return;
+
+  const icon = L.divIcon({
+    html: getIcon(type, true),
+    className: "echo-icon",
+    iconSize: [30, 30]
+  });
+
+  marker.setIcon(icon);
 }
 
 // ----------------------
@@ -73,4 +93,8 @@ export function clearMarkers() {
   markers.forEach(m => map.removeLayer(m));
   markers = [];
 
+  // important: reset lookup table too
+  Object.keys(markerMap).forEach(key => {
+    delete markerMap[key];
+  });
 }

@@ -75,6 +75,8 @@ addMarker({
 
   discoveredEchoes.add(item.id);
 
+  revealMarker(item.id, item.type);
+
   showDetails({
     ...item,
     discovered: true
