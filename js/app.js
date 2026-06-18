@@ -1,4 +1,3 @@
-
 import { getUserLocation } from "./geolocation.js";
 
 import {
@@ -20,6 +19,14 @@ async function loadHistory() {
 
   clearMarkers();
 
+  // User marker
+  addMarker({
+    title: "You are here",
+    lat: currentLocation.lat,
+    lng: currentLocation.lng,
+    article: null
+  }, showDetails);
+
   const radius = Number(
     document.getElementById("radius").value
   );
@@ -34,7 +41,7 @@ async function loadHistory() {
 
     console.log("Echoes loaded:", results);
 
-    // Test marker (debug only)
+    // Test marker
     addMarker({
       title: "Test Echo",
       lat: currentLocation.lat + 0.003,
@@ -74,32 +81,37 @@ async function start() {
 
     currentLocation = await getUserLocation();
 
-    console.log("User location received:", currentLocation);
-    
+    console.log(
+      "User location received:",
+      currentLocation
+    );
+
     initializeMap(
       currentLocation.lat,
       currentLocation.lng
     );
 
-    addMarker({
-      title: "You are here",
-      lat: currentLocation.lat,
-      lng: currentLocation.lng,
-      article: null
-    }, showDetails);
-
     await loadHistory();
 
     document
       .getElementById("radius")
-      .addEventListener("change", loadHistory);
+      .addEventListener(
+        "change",
+        loadHistory
+      );
 
   } catch (error) {
 
     console.error(error);
 
-    alert("Please allow location access to use Echoes.");
+    alert(
+      "Please allow location access to use Echoes."
+    );
+
   }
 }
 
+// ----------------------------
+// BOOT APP
+// ----------------------------
 start();

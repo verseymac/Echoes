@@ -32,9 +32,7 @@ export function addMarker(item, onClick) {
 
   if (!item.lat || !item.lng) return;
 
-  const marker = L.circleMarker([item.lat, item.lng], {
-    radius: 10
-  }).addTo(map);
+  const marker = L.marker([item.lat, item.lng]).addTo(map);
 
   marker.bindPopup(`<b>${item.title}</b>`);
 
