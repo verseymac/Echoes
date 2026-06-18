@@ -15,7 +15,9 @@ export function initializeMap(lat, lng) {
 
 }
 
-function getIcon(type) {
+function getIcon(type, discovered) {
+
+  if (!discovered) return "❓";
 
   const icons = {
     castle: "🏰",
@@ -39,7 +41,7 @@ export function addMarker(item, onClick) {
   if (!item.lat || !item.lng) return;
 
   const icon = L.divIcon({
-  html: getIcon(item.type),
+  html: getIcon(item.type, item.discovered),
   className: "echo-icon",
   iconSize: [30, 30]
 });
@@ -53,8 +55,12 @@ const marker =
   marker.bindPopup(`<b>${item.title}</b>`);
 
   marker.on("click", () => {
-    if (onClick) onClick(item);
-  });
+
+  if (onClick) {
+    onClick(item);
+  }
+
+});
 
   markers.push(marker);
 }

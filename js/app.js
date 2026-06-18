@@ -1,3 +1,5 @@
+const discoveredEchoes = new Set();
+
 import { getUserLocation } from "./geolocation.js";
 
 import {
@@ -59,15 +61,26 @@ async function loadHistory() {
 
     results.forEach(result => {
 
-      addMarker({
-      title: result.title,
-      type: result.type,
-      lat: result.lat,
-      lng: result.lng,
-      userLat: currentLocation.lat,
-      userLng: currentLocation.lng,
-      article: null
-    }, showDetails);
+addMarker({
+  id: result.id,
+  title: result.title,
+  type: result.type,
+  lat: result.lat,
+  lng: result.lng,
+  userLat: currentLocation.lat,
+  userLng: currentLocation.lng,
+  article: null,
+  discovered: discoveredEchoes.has(result.id)
+}, (item) => {
+
+  discoveredEchoes.add(item.id);
+
+  showDetails({
+    ...item,
+    discovered: true
+  });
+
+});
 
     });
 

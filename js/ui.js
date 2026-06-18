@@ -34,6 +34,16 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 
 export async function showDetails(item) {
 
+  if (!item.discovered) {
+
+  document.getElementById("content").innerHTML = `
+    <h3>❓ Unknown Echo</h3>
+    <p>This place is waiting to be discovered.</p>
+  `;
+
+  return;
+}
+
   const container =
     document.getElementById("content");
 
