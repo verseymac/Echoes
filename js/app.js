@@ -1,16 +1,18 @@
-const discoveredEchoes = new Set();
-
 import { getUserLocation } from "./geolocation.js";
 
 import {
   initializeMap,
   addMarker,
-  clearMarkers
+  clearMarkers,
+  revealMarker
 } from "./map.js";
 
 import { fetchNearbyEchoes } from "./wikidata.js";
 
 import { showDetails, setLoading } from "./ui.js";
+
+const discoveredEchoes = new Set();
+
 
 let currentLocation;
 
