@@ -1,7 +1,3 @@
-import {
-  calculateDistance
-} from "./utils.js";
-
 import { getUserLocation } from "./geolocation.js";
 
 import {
@@ -13,11 +9,16 @@ import {
 
 import { fetchNearbyEchoes } from "./wikidata.js";
 
-import { showDetails, setLoading } from "./ui.js";
+import {
+  showDetails,
+  setLoading
+} from "./ui.js";
 
 import { initializeTabs } from "./tabs.js";
 
 import { renderEchoes } from "./echoes.js";
+
+import { calculateDistance } from "./utils.js";
 
 const discoveredEchoes = new Set(
   JSON.parse(
@@ -25,13 +26,13 @@ const discoveredEchoes = new Set(
   )
 );
 
-
 let currentLocation;
 
 // ----------------------------
 // LOAD ECHOES
 // ----------------------------
 async function loadHistory() {
+
   setLoading();
   clearMarkers();
 
@@ -48,7 +49,7 @@ async function loadHistory() {
 
   const radius = Number(
     document.getElementById("radius").value
-  )*1000;
+  ) * 1000;
 
   try {
 
@@ -60,14 +61,6 @@ async function loadHistory() {
 
     console.log("Echoes loaded:", results);
 
-    // Test marker
-    // addMarker({
-    //   title: "Test Echo",
-    //   lat: currentLocation.lat + 0.003,
-    //   lng: currentLocation.lng + 0.003,
-    //   article: "https://en.wikipedia.org/wiki/History"
-    // }, showDetails);
-
     if (!results || results.length === 0) {
       console.log("No Echoes found.");
       return;
@@ -75,109 +68,134 @@ async function loadHistory() {
 
     results.forEach(result => {
 
+      const distance = calculateDistance(
+        currentLocation.lat,
+        currentLocation.lng,
+        result.lat,
+        result.lng
+      );
 
-      const distance =
-  calculateDistance(
-    currentLocation.lat,
-    currentLocation.lng,
-    result.lat,
-    result.lng
-  );
+      // ----------------------------
+      // AUTO DISCOVERY (100m)
+      // ----------------------------
+      const isNew = !discoveredEchoes.has(result.id);
 
-  const savedEchoes =
-  JSON.parse(
-    localStorage.getItem("saved_echoes")
-    || "[]"
-  );
+      if (distance <= 100 && isNew) {
 
-const existing =
-  savedEchoes.find(
-    e => e.id === result.id
-  );
+        discoveredEchoes.add(result.id);
 
-if (
-  existing &&
-  distance <
-    existing.closestDistance
-) {
+        localStorage.setItem(
+          "echoes_discovered",
+          JSON.stringify([...discoveredEchoes])
+        );
 
-  existing.closestDistance =
-    Math.round(distance);
+        const savedEchoes =
+          JSON.parse(
+            localStorage.getItem("saved_echoes") || "[]"
+          );
 
-  localStorage.setItem(
-    "saved_echoes",
-    JSON.stringify(savedEchoes)
-  );
-}
+        const exists =
+          savedEchoes.find(e => e.id === result.id);
 
-addMarker({
-  id: result.id,
-  title: result.title,
-  type: result.type,
-  lat: result.lat,
-  lng: result.lng,
-  userLat: currentLocation.lat,
-  userLng: currentLocation.lng,
-  article: null,
-  discovered: discoveredEchoes.has(result.id)
-}, (item) => {
+        if (exists) {
 
-  discoveredEchoes.add(item.id);
+          exists.closestDistance = 100;
+          exists.discoveredAt = new Date().toISOString();
 
-  localStorage.setItem(
-  "echoes_discovered",
-  JSON.stringify(
-    [...discoveredEchoes]
-  )
-);
+        } else {
 
-const savedEchoes =
-  JSON.parse(
-    localStorage.getItem("saved_echoes")
-    || "[]"
-  );
+          savedEchoes.push({
+            id: result.id,
+            title: result.title,
+            type: result.type,
+            lat: result.lat,
+            lng: result.lng,
+            discoveredAt: new Date().toISOString(),
+            closestDistance: 100
+          });
+        }
 
-if (
-  !savedEchoes.some(
-    echo => echo.id === item.id
-  )
-) {
+        localStorage.setItem(
+          "saved_echoes",
+          JSON.stringify(savedEchoes)
+        );
 
-  savedEchoes.push({
-    id: item.id,
-    title: item.title,
-    type: item.type,
-    lat: item.lat,
-    lng: item.lng, 
+        renderEchoes();
 
-      discoveredAt:
-    new Date().toISOString(),
+        showDetails({
+          ...result,
+          discovered: true
+        });
 
-  closestDistance:
-    calculateDistance(
-      currentLocation.lat,
-      currentLocation.lng,
-      item.lat,
-      item.lng
-    )
-  });
+        if ("Notification" in window &&
+            Notification.permission === "granted") {
 
-  localStorage.setItem(
-    "saved_echoes",
-    JSON.stringify(savedEchoes)
-  );
-}
+          new Notification("Echo Discovered", {
+            body: result.title
+          });
 
-  renderEchoes();
+        }
+      }
 
-  revealMarker(item.id, item.type);
+      // ----------------------------
+      // NORMAL MARKER
+      // ----------------------------
+      addMarker({
+        id: result.id,
+        title: result.title,
+        type: result.type,
+        lat: result.lat,
+        lng: result.lng,
+        userLat: currentLocation.lat,
+        userLng: currentLocation.lng,
+        article: null,
+        discovered: discoveredEchoes.has(result.id)
+      }, (item) => {
 
-  showDetails({
-    ...item,
-    discovered: true
-  });
+        discoveredEchoes.add(item.id);
 
-});
+        localStorage.setItem(
+          "echoes_discovered",
+          JSON.stringify([...discoveredEchoes])
+        );
+
+        const savedEchoes =
+          JSON.parse(
+            localStorage.getItem("saved_echoes") || "[]"
+          );
+
+        const exists =
+          savedEchoes.find(e => e.id === item.id);
+
+        if (!exists) {
+
+          savedEchoes.push({
+            id: item.id,
+            title: item.title,
+            type: item.type,
+            lat: item.lat,
+            lng: item.lng,
+            discoveredAt: new Date().toISOString(),
+            closestDistance: Math.round(distance)
+          });
+
+        }
+
+        localStorage.setItem(
+          "saved_echoes",
+          JSON.stringify(savedEchoes)
+        );
+
+        renderEchoes();
+
+        revealMarker(item.id, item.type);
+
+        showDetails({
+          ...item,
+          discovered: true
+        });
+
+      });
 
     });
 
@@ -197,10 +215,7 @@ async function start() {
 
     currentLocation = await getUserLocation();
 
-    console.log(
-      "User location received:",
-      currentLocation
-    );
+    console.log("User location received:", currentLocation);
 
     initializeMap(
       currentLocation.lat,
@@ -211,22 +226,40 @@ async function start() {
 
     renderEchoes();
 
+    // Notification permission
+    if ("Notification" in window) {
+      Notification.requestPermission();
+    }
+
+    // Reset button
+    document
+      .getElementById("reset-echoes")
+      .addEventListener("click", () => {
+
+        localStorage.removeItem("saved_echoes");
+        localStorage.removeItem("echoes_discovered");
+
+        discoveredEchoes.clear();
+
+        renderEchoes();
+        clearMarkers();
+        loadHistory();
+
+        alert("Echoes reset complete.");
+
+      });
+
     await loadHistory();
 
     document
       .getElementById("radius")
-      .addEventListener(
-        "change",
-        loadHistory
-      );
+      .addEventListener("change", loadHistory);
 
   } catch (error) {
 
     console.error(error);
 
-    alert(
-      "Please allow location access to use Echoes."
-    );
+    alert("Please allow location access to use Echoes.");
 
   }
 }
