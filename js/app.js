@@ -1,3 +1,7 @@
+import {
+  calculateDistance
+} from "./utils.js";
+
 import { getUserLocation } from "./geolocation.js";
 
 import {
@@ -71,6 +75,41 @@ async function loadHistory() {
 
     results.forEach(result => {
 
+
+      const distance =
+  calculateDistance(
+    currentLocation.lat,
+    currentLocation.lng,
+    result.lat,
+    result.lng
+  );
+
+  const savedEchoes =
+  JSON.parse(
+    localStorage.getItem("saved_echoes")
+    || "[]"
+  );
+
+const existing =
+  savedEchoes.find(
+    e => e.id === result.id
+  );
+
+if (
+  existing &&
+  distance <
+    existing.closestDistance
+) {
+
+  existing.closestDistance =
+    Math.round(distance);
+
+  localStorage.setItem(
+    "saved_echoes",
+    JSON.stringify(savedEchoes)
+  );
+}
+
 addMarker({
   id: result.id,
   title: result.title,
@@ -109,7 +148,18 @@ if (
     title: item.title,
     type: item.type,
     lat: item.lat,
-    lng: item.lng
+    lng: item.lng, 
+
+      discoveredAt:
+    new Date().toISOString(),
+
+  closestDistance:
+    calculateDistance(
+      currentLocation.lat,
+      currentLocation.lng,
+      item.lat,
+      item.lng
+    )
   });
 
   localStorage.setItem(

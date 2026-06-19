@@ -5,32 +5,7 @@ export function setLoading() {
 
 import { getWikipediaSummary } from "./wikipedia.js";
 
-function calculateDistance(lat1, lon1, lat2, lon2) {
-
-  const R = 6371e3;
-
-  const φ1 = lat1 * Math.PI / 180;
-  const φ2 = lat2 * Math.PI / 180;
-
-  const Δφ = (lat2 - lat1) * Math.PI / 180;
-  const Δλ = (lon2 - lon1) * Math.PI / 180;
-
-  const a =
-    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-    Math.cos(φ1) *
-    Math.cos(φ2) *
-    Math.sin(Δλ / 2) *
-    Math.sin(Δλ / 2);
-
-  const c =
-    2 *
-    Math.atan2(
-      Math.sqrt(a),
-      Math.sqrt(1 - a)
-    );
-
-  return R * c;
-}
+import { calculateDistance } from "./utils.js";
 
 export async function showDetails(item) {
 
@@ -133,7 +108,23 @@ export function showSavedEcho(item) {
   const formattedType =
     (item.type || "historic site")
       .replace(/_/g, " ")
-      .replace(/\b\w/g, c => c.toUpperCase());
+      .replace(/\b\w/g,
+        c => c.toUpperCase()
+      );
+
+  const discoveredDate =
+    item.discoveredAt
+      ? new Date(
+          item.discoveredAt
+        ).toLocaleDateString()
+      : "Unknown";
+
+  const closest =
+    item.closestDistance
+      ? `${Math.round(
+          item.closestDistance
+        )}m`
+      : "Unknown";
 
   container.innerHTML = `
     <h3>${item.title}</h3>
@@ -141,6 +132,16 @@ export function showSavedEcho(item) {
     <p>
       <strong>Type:</strong>
       ${formattedType}
+    </p>
+
+    <p>
+      <strong>Discovered:</strong>
+      ${discoveredDate}
+    </p>
+
+    <p>
+      <strong>Closest Approach:</strong>
+      ${closest}
     </p>
   `;
 }
