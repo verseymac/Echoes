@@ -1,16 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Echoes</title>
 
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
-
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <link rel="stylesheet" href="css/styles.css" />
@@ -20,10 +17,7 @@
 
   <header>
     <h1>Echoes</h1>
-
-    <p class="tagline">
-      Discover the echoes of history around you
-    </p>
+    <p class="tagline">Discover the echoes of history around you</p>
   </header>
 
   <!-- ========================= -->
@@ -31,19 +25,9 @@
   <!-- ========================= -->
 
   <div id="tabs">
-
-    <button data-tab="discover">
-      🧭 Discover
-    </button>
-
-    <button data-tab="echoes">
-      📖 Echoes
-    </button>
-
-    <button data-tab="user">
-      ⚙️ User
-    </button>
-
+    <button data-tab="discover">🧭 Discover</button>
+    <button data-tab="echoes">📖 Echoes</button>
+    <button data-tab="user">⚙️ User</button>
   </div>
 
   <!-- ========================= -->
@@ -53,31 +37,24 @@
   <div id="discover-page">
 
     <div id="controls">
-
       <label>
         Search Radius:
-
         <select id="radius">
           <option value="1">1 km</option>
           <option value="5" selected>5 km</option>
           <option value="10">10 km</option>
           <option value="25">25 km</option>
         </select>
-
       </label>
-
     </div>
 
     <div id="map"></div>
 
     <div id="details">
-
       <h2>Nearby Echoes</h2>
-
       <div id="content">
         Select an Echo to learn its story
       </div>
-
     </div>
 
   </div>
@@ -86,12 +63,9 @@
   <!-- ECHOES PAGE -->
   <!-- ========================= -->
 
-  <div
-    id="echoes-page"
-    style="display:none"
-  >
+  <div id="echoes-page" style="display:none">
 
-    <div id="details">
+    <div id="echoes-container">
 
       <h2>My Echoes</h2>
 
@@ -113,12 +87,9 @@
   <!-- USER PAGE -->
   <!-- ========================= -->
 
-  <div
-    id="user-page"
-    style="display:none"
-  >
+  <div id="user-page" style="display:none">
 
-    <div id="details">
+    <div id="user-container">
 
       <h2>User</h2>
 
@@ -126,6 +97,9 @@
         Echoes discovered:
         <span id="echo-count">0</span>
       </p>
+
+      <!-- ✅ THIS FIXES YOUR CRASH -->
+      <div id="user-score"></div>
 
       <button id="reset-echoes">
         Reset Discoveries
@@ -139,10 +113,8 @@
   <!-- APP -->
   <!-- ========================= -->
 
-  <script
-    type="module"
-    src="js/app.js"
-  ></script>
+  <script type="module" src="js/app.js"></script>
 
 </body>
+
 </html>
