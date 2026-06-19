@@ -99,6 +99,14 @@ if (
 }
 
 export function showSavedEcho(item) {
+  
+  const stateEmoji =
+  {
+    hidden: "❓",
+    discovered: "🟡",
+    visited: "🔵",
+    mastered: "🏆"
+  }[item.state || "hidden"];
 
   const container =
     document.getElementById(
@@ -126,22 +134,51 @@ export function showSavedEcho(item) {
         )}m`
       : "Unknown";
 
+const stateEmoji =
+  {
+    hidden: "❓",
+    discovered: "🟡",
+    visited: "🔵",
+    mastered: "🏆"
+  }[item.state || "hidden"];
+
+container.innerHTML = `
+  <h3>${item.title}</h3>
+
+  <p>
+    <strong>Type:</strong>
+    ${formattedType}
+  </p>
+
+  <p>
+    <strong>Discovered:</strong>
+    ${discoveredDate}
+  </p>
+
+  <p>
+    <strong>Status:</strong>
+    ${stateEmoji} ${item.state || "hidden"}
+  </p>
+
+  <p>
+    <strong>Closest Approach:</strong>
+    ${closest}
+  </p>
+`;
+}
+
+export function renderUserScore() {
+
+  const container =
+    document.getElementById("user-score");
+
+  const score =
+    localStorage.getItem("echo_score") || 0;
+
   container.innerHTML = `
-    <h3>${item.title}</h3>
-
-    <p>
-      <strong>Type:</strong>
-      ${formattedType}
-    </p>
-
-    <p>
-      <strong>Discovered:</strong>
-      ${discoveredDate}
-    </p>
-
-    <p>
-      <strong>Closest Approach:</strong>
-      ${closest}
+    <h3>Total Echo Score</h3>
+    <p style="font-size: 24px;">
+      ${score}
     </p>
   `;
 }

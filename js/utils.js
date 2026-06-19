@@ -36,3 +36,29 @@ export function calculateDistance(
   return R * c;
 
 }
+
+export function getEchoState(distance) {
+
+  if (distance <= 10) return "mastered";
+  if (distance <= 50) return "visited";
+  if (distance <= 100) return "discovered";
+  return "hidden";
+}
+
+export function getEchoScore(state) {
+
+  switch (state) {
+
+    case "mastered":
+      return 50;
+
+    case "visited":
+      return 25;
+
+    case "discovered":
+      return 10;
+
+    default:
+      return 0;
+  }
+}

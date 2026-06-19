@@ -1,3 +1,6 @@
+let totalScore =
+  Number(localStorage.getItem("echo_score") || 0);
+
 import { getUserLocation } from "./geolocation.js";
 
 import {
@@ -236,78 +239,76 @@ async function loadHistory() {
   }
 }
 
-function updateEchoDistances() {
+savedEchoes.forEach(echo => {
 
-  const savedEchoes =
-    JSON.parse(
-      localStorage.getItem("saved_echoes") || "[]"
+  if (!echo.lat || !echo.lng) return;
+
+  const distance = calculateDistance(
+    currentLocation.lat,
+    currentLocation.lng,
+    echo.lat,
+    echo.lng
+  );
+
+  // store best distance ever
+  if (!echo.closestDistance ||
+      distance < echo.closestDistance) {
+
+    echo.closestDistance =
+      Math.round(distance);
+  }
+
+  const state = getEchoState(distance);
+
+  // prevent double scoring for same state
+  if (!echo.state) echo.state = "hidden";
+
+  const previousState = echo.state;
+
+  if (state !== previousState) {
+
+    echo.state = state;
+
+    const gained = getEchoScore(state);
+
+    totalScore += gained;
+
+    localStorage.setItem(
+      "echo_score",
+      totalScore
     );
 
-  let changed = false;
-
-  savedEchoes.forEach(echo => {
-
-    if (!echo.lat || !echo.lng) return;
-
-    const distance = calculateDistance(
-      currentLocation.lat,
-      currentLocation.lng,
-      echo.lat,
-      echo.lng
+    console.log(
+      `Echo upgraded: ${echo.title} → ${state} (+${gained})`
     );
 
-    if (!echo.closestDistance ||
-        distance < echo.closestDistance) {
-
-      echo.closestDistance =
-        Math.round(distance);
-
-      changed = true;
-    }
-
-    // ----------------------------
-    // AUTO DISCOVERY (LIVE)
-    // ----------------------------
-    const alreadyDiscovered =
-      discoveredEchoes.has(echo.id);
-
-    if (distance <= 100 && !alreadyDiscovered) {
+    // auto discovery logic
+    if (state !== "hidden") {
 
       discoveredEchoes.add(echo.id);
 
       echo.discoveredAt =
+        echo.discoveredAt ||
         new Date().toISOString();
 
-      localStorage.setItem(
-        "echoes_discovered",
-        JSON.stringify([...discoveredEchoes])
-      );
+    }
+
+    // notification
+    if (state === "visited" || state === "mastered") {
 
       if ("Notification" in window &&
           Notification.permission === "granted") {
 
-        new Notification("Echo Discovered", {
-          body: echo.title
+        new Notification("Echo Progress", {
+          body: `${echo.title} → ${state}`
         });
 
       }
-
-      changed = true;
     }
-
-  });
-
-  if (changed) {
-
-    localStorage.setItem(
-      "saved_echoes",
-      JSON.stringify(savedEchoes)
-    );
-
-    renderEchoes();
-
   }
-}
+});
+
+//renderEchoes();
 
 // ----------------------------
 // START APP
@@ -328,8 +329,10 @@ async function start() {
     initializeTabs();
 
     startLiveTracking();
-    
+
     renderEchoes();
+
+    renderUserScore();
 
     // Notification permission
     if ("Notification" in window) {
