@@ -82,3 +82,110 @@ header h1 {
   display: flex;
   gap: 8px;
 }
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
+  background: #0f172a; /* dark app background */
+  display: flex;
+  justify-content: center;
+}
+
+#app {
+  width: 100%;
+  max-width: 420px;
+  min-height: 100vh;
+  background: #f8fafc;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+}
+
+header {
+  background: linear-gradient(135deg, #1f2937, #111827);
+  color: white;
+  padding: 18px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.tagline {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+header {
+  background: linear-gradient(135deg, #1f2937, #111827);
+  color: white;
+  padding: 18px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.tagline {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+#tabs {
+  display: flex;
+  justify-content: space-around;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+#tabs button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: none;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+#tabs button:hover {
+  background: #f1f5f9;
+}
+
+#tabs {
+  display: flex;
+  justify-content: space-around;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+#tabs button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: none;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+#tabs button:hover {
+  background: #f1f5f9;
+}
+
+#details,
+#echoes-page,
+#user-page {
+  padding: 12px;
+}
+
+#content,
+#echoes-list,
+#echoes-details,
+#user-container {
+  background: white;
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
