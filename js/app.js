@@ -11,7 +11,11 @@ import { fetchNearbyEchoes } from "./wikidata.js";
 
 import { showDetails, setLoading } from "./ui.js";
 
-const discoveredEchoes = new Set();
+const discoveredEchoes = new Set(
+  JSON.parse(
+    localStorage.getItem("echoes_discovered") || "[]"
+  )
+);
 
 
 let currentLocation;
@@ -76,6 +80,13 @@ addMarker({
 }, (item) => {
 
   discoveredEchoes.add(item.id);
+
+  localStorage.setItem(
+  "echoes_discovered",
+  JSON.stringify(
+    [...discoveredEchoes]
+  )
+);
 
   revealMarker(item.id, item.type);
 

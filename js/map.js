@@ -18,7 +18,7 @@ export function initializeMap(lat, lng) {
 // ICON LOGIC
 // ----------------------
 function getIcon(type, discovered) {
-
+  if (type === "user") return "🧭";
   // Hidden state (fog of war)
   if (!discovered) return "❓";
 
