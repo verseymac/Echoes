@@ -11,6 +11,8 @@ import { fetchNearbyEchoes } from "./wikidata.js";
 
 import { showDetails, setLoading } from "./ui.js";
 
+import { initializeTabs } from "./tabs.js";
+
 const discoveredEchoes = new Set(
   JSON.parse(
     localStorage.getItem("echoes_discovered") || "[]"
@@ -124,6 +126,8 @@ async function start() {
       currentLocation.lat,
       currentLocation.lng
     );
+
+    initializeTabs();
 
     await loadHistory();
 
