@@ -1,6 +1,3 @@
-let totalScore =
-  Number(localStorage.getItem("echo_score") || 0);
-
 import { getUserLocation } from "./geolocation.js";
 
 import {
@@ -14,14 +11,28 @@ import { fetchNearbyEchoes } from "./wikidata.js";
 
 import {
   showDetails,
-  setLoading
+  setLoading,
+  renderUserScore
 } from "./ui.js";
 
 import { initializeTabs } from "./tabs.js";
 
 import { renderEchoes } from "./echoes.js";
 
-import { calculateDistance } from "./utils.js";
+import {
+  calculateDistance,
+  getEchoState,
+  getEchoScore
+} from "./utils.js";
+
+// ----------------------------
+// STATE
+// ----------------------------
+
+let currentLocation;
+
+let totalScore =
+  Number(localStorage.getItem("echo_score") || 0);
 
 const discoveredEchoes = new Set(
   JSON.parse(
@@ -29,9 +40,10 @@ const discoveredEchoes = new Set(
   )
 );
 
-let currentLocation;
+// ----------------------------
+// LIVE TRACKING
+// ----------------------------
 
-//Location Updating
 function startLiveTracking() {
 
   if (!navigator.geolocation) return;
@@ -43,8 +55,6 @@ function startLiveTracking() {
         lat: position.coords.latitude,
         lng: position.coords.longitude
       };
-
-      console.log("Live position update:", currentLocation);
 
       updateEchoDistances();
 
@@ -58,12 +68,95 @@ function startLiveTracking() {
       timeout: 5000
     }
   );
+}
 
+// ----------------------------
+// UPDATE DISTANCES + STATES
+// ----------------------------
+
+function updateEchoDistances() {
+
+  const savedEchoes =
+    JSON.parse(localStorage.getItem("saved_echoes") || "[]");
+
+  let changed = false;
+
+  savedEchoes.forEach(echo => {
+
+    if (!echo.lat || !echo.lng) return;
+
+    const distance = calculateDistance(
+      currentLocation.lat,
+      currentLocation.lng,
+      echo.lat,
+      echo.lng
+    );
+
+    // Track closest approach
+    if (!echo.closestDistance ||
+        distance < echo.closestDistance) {
+
+      echo.closestDistance = Math.round(distance);
+      changed = true;
+    }
+
+    // Determine state
+    const state = getEchoState(distance);
+
+    if (!echo.state) echo.state = "hidden";
+
+    const previousState = echo.state;
+
+    if (state !== previousState) {
+
+      echo.state = state;
+
+      const gained = getEchoScore(state);
+
+      totalScore += gained;
+
+      localStorage.setItem("echo_score", totalScore);
+
+      changed = true;
+
+      // Mark discovered
+      if (state !== "hidden") {
+
+        discoveredEchoes.add(echo.id);
+
+        echo.discoveredAt =
+          echo.discoveredAt ||
+          new Date().toISOString();
+      }
+
+      // Notification
+      if ((state === "visited" || state === "mastered") &&
+          "Notification" in window &&
+          Notification.permission === "granted") {
+
+        new Notification("Echo Progress", {
+          body: `${echo.title} → ${state}`
+        });
+      }
+    }
+
+  });
+
+  if (changed) {
+
+    localStorage.setItem(
+      "saved_echoes",
+      JSON.stringify(savedEchoes)
+    );
+
+    renderEchoes();
+  }
 }
 
 // ----------------------------
 // LOAD ECHOES
 // ----------------------------
+
 async function loadHistory() {
 
   setLoading();
@@ -92,12 +185,7 @@ async function loadHistory() {
       radius
     );
 
-    console.log("Echoes loaded:", results);
-
-    if (!results || results.length === 0) {
-      console.log("No Echoes found.");
-      return;
-    }
+    if (!results || results.length === 0) return;
 
     results.forEach(result => {
 
@@ -111,6 +199,7 @@ async function loadHistory() {
       // ----------------------------
       // AUTO DISCOVERY (100m)
       // ----------------------------
+
       const isNew = !discoveredEchoes.has(result.id);
 
       if (distance <= 100 && isNew) {
@@ -123,9 +212,7 @@ async function loadHistory() {
         );
 
         const savedEchoes =
-          JSON.parse(
-            localStorage.getItem("saved_echoes") || "[]"
-          );
+          JSON.parse(localStorage.getItem("saved_echoes") || "[]");
 
         const exists =
           savedEchoes.find(e => e.id === result.id);
@@ -144,7 +231,8 @@ async function loadHistory() {
             lat: result.lat,
             lng: result.lng,
             discoveredAt: new Date().toISOString(),
-            closestDistance: 100
+            closestDistance: 100,
+            state: "discovered"
           });
         }
 
@@ -166,13 +254,13 @@ async function loadHistory() {
           new Notification("Echo Discovered", {
             body: result.title
           });
-
         }
       }
 
       // ----------------------------
-      // NORMAL MARKER
+      // MARKER
       // ----------------------------
+
       addMarker({
         id: result.id,
         title: result.title,
@@ -193,9 +281,7 @@ async function loadHistory() {
         );
 
         const savedEchoes =
-          JSON.parse(
-            localStorage.getItem("saved_echoes") || "[]"
-          );
+          JSON.parse(localStorage.getItem("saved_echoes") || "[]");
 
         const exists =
           savedEchoes.find(e => e.id === item.id);
@@ -209,9 +295,9 @@ async function loadHistory() {
             lat: item.lat,
             lng: item.lng,
             discoveredAt: new Date().toISOString(),
-            closestDistance: Math.round(distance)
+            closestDistance: Math.round(distance),
+            state: "discovered"
           });
-
         }
 
         localStorage.setItem(
@@ -235,91 +321,18 @@ async function loadHistory() {
   } catch (error) {
 
     console.error("Failed to load Echoes:", error);
-
   }
 }
-
-savedEchoes.forEach(echo => {
-
-  if (!echo.lat || !echo.lng) return;
-
-  const distance = calculateDistance(
-    currentLocation.lat,
-    currentLocation.lng,
-    echo.lat,
-    echo.lng
-  );
-
-  // store best distance ever
-  if (!echo.closestDistance ||
-      distance < echo.closestDistance) {
-
-    echo.closestDistance =
-      Math.round(distance);
-  }
-
-  const state = getEchoState(distance);
-
-  // prevent double scoring for same state
-  if (!echo.state) echo.state = "hidden";
-
-  const previousState = echo.state;
-
-  if (state !== previousState) {
-
-    echo.state = state;
-
-    const gained = getEchoScore(state);
-
-    totalScore += gained;
-
-    localStorage.setItem(
-      "echo_score",
-      totalScore
-    );
-
-    console.log(
-      `Echo upgraded: ${echo.title} → ${state} (+${gained})`
-    );
-
-    // auto discovery logic
-    if (state !== "hidden") {
-
-      discoveredEchoes.add(echo.id);
-
-      echo.discoveredAt =
-        echo.discoveredAt ||
-        new Date().toISOString();
-
-    }
-
-    // notification
-    if (state === "visited" || state === "mastered") {
-
-      if ("Notification" in window &&
-          Notification.permission === "granted") {
-
-        new Notification("Echo Progress", {
-          body: `${echo.title} → ${state}`
-        });
-
-      }
-    }
-  }
-});
-
-renderEchoes();
 
 // ----------------------------
 // START APP
 // ----------------------------
+
 async function start() {
 
   try {
 
     currentLocation = await getUserLocation();
-
-    console.log("User location received:", currentLocation);
 
     initializeMap(
       currentLocation.lat,
@@ -334,12 +347,10 @@ async function start() {
 
     renderUserScore();
 
-    // Notification permission
     if ("Notification" in window) {
       Notification.requestPermission();
     }
 
-    // Reset button
     document
       .getElementById("reset-echoes")
       .addEventListener("click", () => {
@@ -348,13 +359,15 @@ async function start() {
         localStorage.removeItem("echoes_discovered");
 
         discoveredEchoes.clear();
+        totalScore = 0;
+
+        localStorage.setItem("echo_score", "0");
 
         renderEchoes();
         clearMarkers();
         loadHistory();
 
         alert("Echoes reset complete.");
-
       });
 
     await loadHistory();
@@ -368,11 +381,11 @@ async function start() {
     console.error(error);
 
     alert("Please allow location access to use Echoes.");
-
   }
 }
 
 // ----------------------------
-// BOOT APP
+// BOOT
 // ----------------------------
+
 start();
