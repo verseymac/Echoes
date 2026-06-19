@@ -308,7 +308,7 @@ savedEchoes.forEach(echo => {
   }
 });
 
-//renderEchoes();
+renderEchoes();
 
 // ----------------------------
 // START APP
