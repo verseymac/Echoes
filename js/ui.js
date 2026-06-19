@@ -122,3 +122,25 @@ if (
   </p>
 `;
 }
+
+export function showSavedEcho(item) {
+
+  const container =
+    document.getElementById(
+      "echoes-details"
+    );
+
+  const formattedType =
+    (item.type || "historic site")
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, c => c.toUpperCase());
+
+  container.innerHTML = `
+    <h3>${item.title}</h3>
+
+    <p>
+      <strong>Type:</strong>
+      ${formattedType}
+    </p>
+  `;
+}

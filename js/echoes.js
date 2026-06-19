@@ -1,4 +1,4 @@
-import { showDetails } from "./ui.js";
+import { showSavedEcho } from "./ui.js";
 
 export function renderEchoes() {
 
@@ -51,7 +51,7 @@ export function renderEchoes() {
 
         if (!echo) return;
 
-        alert(echo.title);
+        showSavedEcho(echo);
 
       });
 
