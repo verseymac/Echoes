@@ -414,6 +414,29 @@ async function start() {
   });
 });
 
+window.addEventListener("open-echo", (e) => {
+
+  const id = e.detail;
+
+  const saved =
+    JSON.parse(localStorage.getItem("saved_echoes") || "[]");
+
+  const echo = saved.find(x => String(x.id) === String(id));
+
+  if (!echo) {
+    console.log("Echo not found:", id);
+    return;
+  }
+
+  // Switch tab (if exists)
+  document.querySelector('[data-tab="echoes"]')?.click();
+
+  // Show details
+  import("./ui.js").then(({ showSavedEcho }) => {
+    showSavedEcho(echo);
+  });
+});
+
     document
       .getElementById("reset-echoes")
       .addEventListener("click", () => {

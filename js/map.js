@@ -58,11 +58,34 @@ marker.bindPopup(`
     <div class="echo-popup-title">${item.title}</div>
     <div class="echo-popup-type">${item.type || "historic site"}</div>
 
-    <button onclick="window.dispatchEvent(new CustomEvent('echo-open', {detail: ${item.id}}))">
-      Open
+    <button class="echo-open-btn" data-id="${item.id}">
+      Open Echo
     </button>
   </div>
 `);
+
+marker.on("popupopen", () => {
+
+  setTimeout(() => {
+
+    const btn = document.querySelector(".echo-open-btn");
+
+    if (btn) {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const id = btn.dataset.id;
+
+        window.dispatchEvent(new CustomEvent("open-echo", {
+          detail: id
+        }));
+      });
+    }
+
+  }, 50);
+
+});
 
   marker.on("click", () => {
     if (onClick) onClick(item);
