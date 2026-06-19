@@ -28,6 +28,36 @@ const discoveredEchoes = new Set(
 
 let currentLocation;
 
+//Location Updating
+function startLiveTracking() {
+
+  if (!navigator.geolocation) return;
+
+  navigator.geolocation.watchPosition(
+    (position) => {
+
+      currentLocation = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+
+      console.log("Live position update:", currentLocation);
+
+      updateEchoDistances();
+
+    },
+    (error) => {
+      console.warn("Live tracking error:", error);
+    },
+    {
+      enableHighAccuracy: true,
+      maximumAge: 1000,
+      timeout: 5000
+    }
+  );
+
+}
+
 // ----------------------------
 // LOAD ECHOES
 // ----------------------------
@@ -206,6 +236,79 @@ async function loadHistory() {
   }
 }
 
+function updateEchoDistances() {
+
+  const savedEchoes =
+    JSON.parse(
+      localStorage.getItem("saved_echoes") || "[]"
+    );
+
+  let changed = false;
+
+  savedEchoes.forEach(echo => {
+
+    if (!echo.lat || !echo.lng) return;
+
+    const distance = calculateDistance(
+      currentLocation.lat,
+      currentLocation.lng,
+      echo.lat,
+      echo.lng
+    );
+
+    if (!echo.closestDistance ||
+        distance < echo.closestDistance) {
+
+      echo.closestDistance =
+        Math.round(distance);
+
+      changed = true;
+    }
+
+    // ----------------------------
+    // AUTO DISCOVERY (LIVE)
+    // ----------------------------
+    const alreadyDiscovered =
+      discoveredEchoes.has(echo.id);
+
+    if (distance <= 100 && !alreadyDiscovered) {
+
+      discoveredEchoes.add(echo.id);
+
+      echo.discoveredAt =
+        new Date().toISOString();
+
+      localStorage.setItem(
+        "echoes_discovered",
+        JSON.stringify([...discoveredEchoes])
+      );
+
+      if ("Notification" in window &&
+          Notification.permission === "granted") {
+
+        new Notification("Echo Discovered", {
+          body: echo.title
+        });
+
+      }
+
+      changed = true;
+    }
+
+  });
+
+  if (changed) {
+
+    localStorage.setItem(
+      "saved_echoes",
+      JSON.stringify(savedEchoes)
+    );
+
+    renderEchoes();
+
+  }
+}
+
 // ----------------------------
 // START APP
 // ----------------------------
@@ -224,6 +327,8 @@ async function start() {
 
     initializeTabs();
 
+    startLiveTracking();
+    
     renderEchoes();
 
     // Notification permission
