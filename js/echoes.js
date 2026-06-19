@@ -1,0 +1,35 @@
+export function renderEchoes() {
+
+  const container =
+    document.getElementById("echoes-list");
+
+  const echoes =
+    JSON.parse(
+      localStorage.getItem("saved_echoes")
+      || "[]"
+    );
+
+  if (echoes.length === 0) {
+
+    container.innerHTML =
+      "No Echoes discovered yet.";
+
+    return;
+
+  }
+
+  container.innerHTML =
+    echoes
+      .map(
+        echo => `
+          <div class="saved-echo">
+            <h3>${echo.title}</h3>
+
+            <p>
+              ${echo.type || "Historic Site"}
+            </p>
+          </div>
+        `
+      )
+      .join("");
+}

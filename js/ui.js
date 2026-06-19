@@ -79,8 +79,19 @@ export async function showDetails(item) {
 
   try {
 
-    const wiki =
-      await getWikipediaSummary(item.title);
+    let wiki = null;
+
+if (
+  item.title &&
+  item.title !== "Unknown Historic Site"
+) {
+
+  wiki =
+    await getWikipediaSummary(
+      item.title
+    );
+
+}
 
     if (wiki?.extract) {
       summary = 

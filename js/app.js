@@ -13,6 +13,8 @@ import { showDetails, setLoading } from "./ui.js";
 
 import { initializeTabs } from "./tabs.js";
 
+import { renderEchoes } from "./echoes.js";
+
 const discoveredEchoes = new Set(
   JSON.parse(
     localStorage.getItem("echoes_discovered") || "[]"
@@ -90,6 +92,32 @@ addMarker({
   )
 );
 
+const savedEchoes =
+  JSON.parse(
+    localStorage.getItem("saved_echoes")
+    || "[]"
+  );
+
+if (
+  !savedEchoes.some(
+    echo => echo.id === item.id
+  )
+) {
+
+  savedEchoes.push({
+    id: item.id,
+    title: item.title,
+    type: item.type
+  });
+
+  localStorage.setItem(
+    "saved_echoes",
+    JSON.stringify(savedEchoes)
+  );
+}
+
+  renderEchoes();
+  
   revealMarker(item.id, item.type);
 
   showDetails({
@@ -128,6 +156,8 @@ async function start() {
     );
 
     initializeTabs();
+
+    renderEchoes();
 
     await loadHistory();
 
