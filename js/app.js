@@ -107,7 +107,9 @@ if (
   savedEchoes.push({
     id: item.id,
     title: item.title,
-    type: item.type
+    type: item.type,
+    lat: item.lat,
+    lng: item.lng
   });
 
   localStorage.setItem(
@@ -117,7 +119,7 @@ if (
 }
 
   renderEchoes();
-  
+
   revealMarker(item.id, item.type);
 
   showDetails({

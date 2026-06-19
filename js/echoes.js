@@ -1,3 +1,5 @@
+import { showDetails } from "./ui.js";
+
 export function renderEchoes() {
 
   const container =
@@ -15,14 +17,16 @@ export function renderEchoes() {
       "No Echoes discovered yet.";
 
     return;
-
   }
 
   container.innerHTML =
     echoes
       .map(
         echo => `
-          <div class="saved-echo">
+          <div
+            class="saved-echo"
+            data-id="${echo.id}"
+          >
             <h3>${echo.title}</h3>
 
             <p>
@@ -32,4 +36,5 @@ export function renderEchoes() {
         `
       )
       .join("");
+
 }
