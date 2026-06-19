@@ -16,7 +16,6 @@ import {
 } from "./ui.js";
 
 import { initializeTabs } from "./tabs.js";
-
 import { renderEchoes } from "./echoes.js";
 
 import {
@@ -35,10 +34,29 @@ let totalScore =
   Number(localStorage.getItem("echo_score") || 0);
 
 const discoveredEchoes = new Set(
-  JSON.parse(
-    localStorage.getItem("echoes_discovered") || "[]"
-  )
+  JSON.parse(localStorage.getItem("echoes_discovered") || "[]")
 );
+
+// ----------------------------
+// HUD (NEW)
+// ----------------------------
+
+function updateHUD() {
+
+  const echoes =
+    JSON.parse(localStorage.getItem("echoes_discovered") || "[]");
+
+  const countEl = document.getElementById("hud-count");
+  const scoreEl = document.getElementById("hud-score");
+
+  if (countEl) {
+    countEl.textContent = `Echoes: ${echoes.length}`;
+  }
+
+  if (scoreEl) {
+    scoreEl.textContent = `Score: ${totalScore}`;
+  }
+}
 
 // ----------------------------
 // LIVE TRACKING
@@ -71,7 +89,7 @@ function startLiveTracking() {
 }
 
 // ----------------------------
-// UPDATE DISTANCES + STATES
+// DISTANCE + STATE SYSTEM
 // ----------------------------
 
 function updateEchoDistances() {
@@ -100,7 +118,6 @@ function updateEchoDistances() {
       changed = true;
     }
 
-    // Determine state
     const state = getEchoState(distance);
 
     if (!echo.state) echo.state = "hidden";
@@ -119,37 +136,35 @@ function updateEchoDistances() {
 
       changed = true;
 
-      // Mark discovered
+      // discovery tracking
       if (state !== "hidden") {
 
         discoveredEchoes.add(echo.id);
 
         echo.discoveredAt =
-          echo.discoveredAt ||
-          new Date().toISOString();
+          echo.discoveredAt || new Date().toISOString();
       }
 
-      // Notification
-      if ((state === "visited" || state === "mastered") &&
-          "Notification" in window &&
-          Notification.permission === "granted") {
-
+      // notification
+      if (
+        (state === "visited" || state === "mastered") &&
+        "Notification" in window &&
+        Notification.permission === "granted"
+      ) {
         new Notification("Echo Progress", {
           body: `${echo.title} → ${state}`
         });
       }
     }
-
   });
 
   if (changed) {
 
-    localStorage.setItem(
-      "saved_echoes",
-      JSON.stringify(savedEchoes)
-    );
+    localStorage.setItem("saved_echoes", JSON.stringify(savedEchoes));
 
     renderEchoes();
+    renderUserScore();
+    updateHUD();
   }
 }
 
@@ -173,9 +188,8 @@ async function loadHistory() {
     article: null
   }, showDetails);
 
-  const radius = Number(
-    document.getElementById("radius").value
-  ) * 1000;
+  const radius =
+    Number(document.getElementById("radius").value) * 1000;
 
   try {
 
@@ -197,10 +211,11 @@ async function loadHistory() {
       );
 
       // ----------------------------
-      // AUTO DISCOVERY (100m)
+      // AUTO DISCOVERY
       // ----------------------------
 
-      const isNew = !discoveredEchoes.has(result.id);
+      const isNew =
+        !discoveredEchoes.has(result.id);
 
       if (distance <= 100 && isNew) {
 
@@ -242,6 +257,7 @@ async function loadHistory() {
         );
 
         renderEchoes();
+        updateHUD();
 
         showDetails({
           ...result,
@@ -306,6 +322,7 @@ async function loadHistory() {
         );
 
         renderEchoes();
+        updateHUD();
 
         revealMarker(item.id, item.type);
 
@@ -325,7 +342,7 @@ async function loadHistory() {
 }
 
 // ----------------------------
-// START APP
+// START
 // ----------------------------
 
 async function start() {
@@ -344,8 +361,8 @@ async function start() {
     startLiveTracking();
 
     renderEchoes();
-
     renderUserScore();
+    updateHUD();
 
     if ("Notification" in window) {
       Notification.requestPermission();
@@ -357,13 +374,14 @@ async function start() {
 
         localStorage.removeItem("saved_echoes");
         localStorage.removeItem("echoes_discovered");
+        localStorage.removeItem("echo_score");
 
         discoveredEchoes.clear();
         totalScore = 0;
 
-        localStorage.setItem("echo_score", "0");
-
         renderEchoes();
+        renderUserScore();
+        updateHUD();
         clearMarkers();
         loadHistory();
 
@@ -379,7 +397,6 @@ async function start() {
   } catch (error) {
 
     console.error(error);
-
     alert("Please allow location access to use Echoes.");
   }
 }
