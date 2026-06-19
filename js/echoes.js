@@ -37,4 +37,24 @@ export function renderEchoes() {
       )
       .join("");
 
+  // Add click events
+  document
+    .querySelectorAll(".saved-echo")
+    .forEach(card => {
+
+      card.addEventListener("click", () => {
+
+        const echo =
+          echoes.find(
+            e => e.id == card.dataset.id
+          );
+
+        if (!echo) return;
+
+        alert(echo.title);
+
+      });
+
+    });
+
 }
