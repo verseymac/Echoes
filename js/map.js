@@ -53,7 +53,16 @@ export function addMarker(item, onClick) {
     L.marker([item.lat, item.lng], { icon })
       .addTo(map);
 
-  marker.bindPopup(`<b>${item.title}</b>`);
+marker.bindPopup(`
+  <div class="echo-popup">
+    <div class="echo-popup-title">${item.title}</div>
+    <div class="echo-popup-type">${item.type || "historic site"}</div>
+
+    <button onclick="window.dispatchEvent(new CustomEvent('echo-open', {detail: ${item.id}}))">
+      Open
+    </button>
+  </div>
+`);
 
   marker.on("click", () => {
     if (onClick) onClick(item);

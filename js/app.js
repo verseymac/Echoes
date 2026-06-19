@@ -37,27 +37,48 @@ const discoveredEchoes = new Set(
   JSON.parse(localStorage.getItem("echoes_discovered") || "[]")
 );
 
+function getEchoStats() {
+
+  const saved =
+    JSON.parse(localStorage.getItem("saved_echoes") || "[]");
+
+  const score =
+    Number(localStorage.getItem("echo_score") || 0);
+
+  return {
+    count: saved.length,
+    score
+  };
+}
+
 // ----------------------------
 // HUD (NEW)
 // ----------------------------
 
 function updateHUD() {
 
-  const echoes =
-    JSON.parse(localStorage.getItem("echoes_discovered") || "[]");
+  const stats = getEchoStats();
 
   const countEl = document.getElementById("hud-count");
   const scoreEl = document.getElementById("hud-score");
 
   if (countEl) {
-    countEl.textContent = `Echoes: ${echoes.length}`;
+    countEl.textContent = `Echoes: ${stats.count}`;
   }
 
   if (scoreEl) {
-    scoreEl.textContent = `Score: ${totalScore}`;
+    scoreEl.textContent = `Score: ${stats.score}`;
   }
-}
 
+  // ALSO update user page if visible
+  const userCount = document.getElementById("echo-count");
+
+  if (userCount) {
+    userCount.textContent = stats.count;
+  }
+
+  renderUserScore();
+}
 // ----------------------------
 // LIVE TRACKING
 // ----------------------------
@@ -167,6 +188,8 @@ function updateEchoDistances() {
     updateHUD();
   }
 }
+
+updateHUD();
 
 // ----------------------------
 // LOAD ECHOES
@@ -367,6 +390,29 @@ async function start() {
     if ("Notification" in window) {
       Notification.requestPermission();
     }
+
+    document.addEventListener("click", (e) => {
+
+  const btn = e.target.closest(".echo-open-btn");
+  if (!btn) return;
+
+  const id = btn.dataset.id;
+
+  const saved =
+    JSON.parse(localStorage.getItem("saved_echoes") || "[]");
+
+  const echo = saved.find(e => e.id == id);
+
+  if (!echo) return;
+
+  // Switch to Echoes tab (if you have tab system)
+  document.querySelector('[data-tab="echoes"]')?.click();
+
+  // Show details
+  import("./ui.js").then(({ showSavedEcho }) => {
+    showSavedEcho(echo);
+  });
+});
 
     document
       .getElementById("reset-echoes")
