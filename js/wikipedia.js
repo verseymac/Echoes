@@ -16,3 +16,26 @@ export async function getWikipediaSummary(title) {
 
   }
 }
+
+export async function searchWikipedia(query) {
+
+  try {
+
+    const url =
+      `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${query}&format=json&origin=*`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    const firstResult = data?.query?.search?.[0];
+
+    if (!firstResult) return null;
+
+    return firstResult.title;
+
+  } catch (error) {
+
+    console.error("Wikipedia search failed:", error);
+    return null;
+  }
+}

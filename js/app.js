@@ -15,6 +15,11 @@ import {
   renderUserScore
 } from "./ui.js";
 
+import {
+  searchWikipedia,
+  getWikipediaSummary
+} from "./wikipedia.js";
+
 import { initializeTabs } from "./tabs.js";
 import { renderEchoes } from "./echoes.js";
 
@@ -36,6 +41,8 @@ let totalScore =
 const discoveredEchoes = new Set(
   JSON.parse(localStorage.getItem("echoes_discovered") || "[]")
 );
+
+
 
 function getEchoStats() {
 
@@ -189,7 +196,6 @@ function updateEchoDistances() {
   }
 }
 
-updateHUD();
 
 // ----------------------------
 // LOAD ECHOES
@@ -349,7 +355,7 @@ async function loadHistory() {
 
         revealMarker(item.id, item.type);
 
-        showDetails({
+        openEchoPage({
           ...item,
           discovered: true
         });
@@ -361,6 +367,86 @@ async function loadHistory() {
   } catch (error) {
 
     console.error("Failed to load Echoes:", error);
+  }
+}
+
+async function openEchoPage(echo) {
+
+  const page =
+    document.getElementById("echo-detail-page");
+
+  const content =
+    document.getElementById("echo-detail-content");
+
+  page.style.display = "block";
+
+  document.getElementById("discover-page").style.display = "none";
+  document.getElementById("echoes-page").style.display = "none";
+  document.getElementById("user-page").style.display = "none";
+
+  content.innerHTML = `
+    <h2>${echo.title}</h2>
+    <p>Searching history...</p>
+  `;
+
+  try {
+
+    const query =
+      `${echo.title} ${echo.type || ""}`;
+
+    const wikiTitle =
+      await searchWikipedia(query);
+
+    const wiki =
+      wikiTitle
+        ? await getWikipediaSummary(wikiTitle)
+        : null;
+
+    content.innerHTML = `
+      <h2>${echo.title}</h2>
+
+      <p>
+        <strong>Type:</strong>
+        ${echo.type || "Historic Site"}
+      </p>
+
+      <p>
+        ${
+          wiki?.extract ||
+          "No verified historical information available."
+        }
+      </p>
+
+      ${
+        wiki?.content_urls?.desktop?.page
+          ? `
+          <p>
+            <a
+              href="${wiki.content_urls.desktop.page}"
+              target="_blank"
+            >
+              Read Full Article
+            </a>
+          </p>
+          `
+          : ""
+      }
+    `;
+
+  } catch (error) {
+
+    console.error(
+      "History lookup failed:",
+      error
+    );
+
+    content.innerHTML = `
+      <h2>${echo.title}</h2>
+
+      <p>
+        Historical information unavailable.
+      </p>
+    `;
   }
 }
 
@@ -391,27 +477,25 @@ async function start() {
       Notification.requestPermission();
     }
 
-    document.addEventListener("click", (e) => {
+    document
+  .getElementById("back-to-map")
+  .addEventListener("click", () => {
 
-  const btn = e.target.closest(".echo-open-btn");
-  if (!btn) return;
+    document.getElementById(
+      "echo-detail-page"
+    ).style.display = "none";
 
-  const id = btn.dataset.id;
+    document.getElementById(
+      "discover-page"
+    ).style.display = "block";
 
-  const saved =
-    JSON.parse(localStorage.getItem("saved_echoes") || "[]");
+    document.getElementById(
+      "user-page"
+    ).style.display = "none";
 
-  const echo = saved.find(e => e.id == id);
-
-  if (!echo) return;
-
-  // Switch to Echoes tab (if you have tab system)
-  document.querySelector('[data-tab="echoes"]')?.click();
-
-  // Show details
-  import("./ui.js").then(({ showSavedEcho }) => {
-    showSavedEcho(echo);
-  });
+    document.getElementById(
+      "echoes-page"
+    ).style.display = "none";
 });
 
 window.addEventListener("open-echo", (e) => {
@@ -432,9 +516,7 @@ window.addEventListener("open-echo", (e) => {
   document.querySelector('[data-tab="echoes"]')?.click();
 
   // Show details
-  import("./ui.js").then(({ showSavedEcho }) => {
-    showSavedEcho(echo);
-  });
+openEchoPage(echo);
 });
 
     document
@@ -468,7 +550,13 @@ window.addEventListener("open-echo", (e) => {
     console.error(error);
     alert("Please allow location access to use Echoes.");
   }
-}
+
+  document.getElementById("echo-detail-page").style.display = "none";
+  document.getElementById("discover-page").style.display = "block";
+
+};
+
+
 
 // ----------------------------
 // BOOT
