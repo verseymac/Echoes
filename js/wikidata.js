@@ -55,7 +55,9 @@ console.log(query);
                     lat,
                     lng: lon,
                     title: el.tags?.name || "Unknown Historic Site",
-                    type: el.tags?.historic || "historic"
+                    type: el.tags?.historic || "historic",
+                    wikidata: el.tags?.wikidata || null,
+                    wikipedia: el.tags?.wikipedia || null
                 };
 
             })

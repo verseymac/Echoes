@@ -276,7 +276,9 @@ async function loadHistory() {
             lng: result.lng,
             discoveredAt: new Date().toISOString(),
             closestDistance: 100,
-            state: "discovered"
+            state: "discovered",
+            wikidata: result.wikidata,
+            wikipedia: result.wikipedia
           });
         }
 
@@ -341,7 +343,9 @@ async function loadHistory() {
             lng: item.lng,
             discoveredAt: new Date().toISOString(),
             closestDistance: Math.round(distance),
-            state: "discovered"
+            state: "discovered",
+            wikidata: item.wikidata,
+            wikipedia: item.wikipedia
           });
         }
 
@@ -391,31 +395,56 @@ async function openEchoPage(echo) {
 
   try {
 
-    const query =
-      `${echo.title} ${echo.type || ""}`;
+    let wikiTitle = null;
 
-    const wikiTitle =
-      await searchWikipedia(query);
+if (echo.wikipedia) {
+
+  wikiTitle =
+    echo.wikipedia.replace("en:", "");
+
+} else {
+
+  wikiTitle =
+    await searchWikipedia(
+      `${echo.title} ${echo.type || ""}`
+    );
+
+}
 
     const wiki =
       wikiTitle
         ? await getWikipediaSummary(wikiTitle)
         : null;
 
+    
     content.innerHTML = `
-      <h2>${echo.title}</h2>
+  <h2>${echo.title}</h2>
 
-      <p>
-        <strong>Type:</strong>
-        ${echo.type || "Historic Site"}
-      </p>
+  ${
+    wiki?.thumbnail?.source
+      ? `
+      <img
+        src="${wiki.thumbnail.source}"
+        alt="${echo.title}"
+        class="echo-image"
+      >
+      `
+      : ""
+  }
 
-      <p>
-        ${
-          wiki?.extract ||
-          "No verified historical information available."
-        }
-      </p>
+  <p>
+    <strong>Type:</strong>
+    ${echo.type || "Historic Site"}
+  </p>
+
+  <p>
+    ${
+      wiki?.extract ||
+      "No verified historical information available."
+    }
+  </p>
+
+  
 
       ${
         wiki?.content_urls?.desktop?.page
