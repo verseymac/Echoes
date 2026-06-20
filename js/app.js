@@ -424,26 +424,11 @@ if (echo.wikipedia) {
       wikiTitle
         ? await getWikipediaSummary(wikiTitle)
         : null;
-
-        const narrative =
+const narrative =
   buildNarrative(
     echo.title,
     wiki?.extract
   );
-
-const discovered =
-  echo.discoveredAt
-    ? new Date(
-        echo.discoveredAt
-      ).toLocaleDateString()
-    : "Today";
-
-const closest =
-  echo.closestDistance
-    ? `${echo.closestDistance}m`
-    : "Unknown";
-
-const rarity = "📜 Common";
 
 const rarity =
   getEchoRarity(echo);
@@ -458,9 +443,9 @@ const discovered =
 const closest =
   echo.closestDistance
     ? `${echo.closestDistance}m`
-    : "Unknown";    
+    : "Unknown";
 
-        content.innerHTML = `
+content.innerHTML = `
 <div class="echo-card">
 
   <div class="echo-rarity">
@@ -548,6 +533,10 @@ async function start() {
 
     initializeTabs();
 
+    document.getElementById("echo-detail-page").style.display = "none";
+    document.getElementById("discover-page").style.display = "block";
+
+
     startLiveTracking();
 
     renderEchoes();
@@ -632,10 +621,7 @@ openEchoPage(echo);
     alert("Please allow location access to use Echoes.");
   }
 
-  document.getElementById("echo-detail-page").style.display = "none";
-  document.getElementById("discover-page").style.display = "block";
-
-};
+}
 
 
 
