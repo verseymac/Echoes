@@ -33,10 +33,6 @@ import {
   getEchoRarity
 } from "./rarity.js";
 
-import {
-  searchWikipedia,
-  getWikipediaSummary
-} from "./wikipedia.js";
 
 import {
   buildNarrative
