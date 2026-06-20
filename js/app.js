@@ -29,6 +29,19 @@ import {
   getEchoScore
 } from "./utils.js";
 
+import {
+  getEchoRarity
+} from "./rarity.js";
+
+import {
+  searchWikipedia,
+  getWikipediaSummary
+} from "./wikipedia.js";
+
+import {
+  buildNarrative
+} from "./history.js";
+
 // ----------------------------
 // STATE
 // ----------------------------
@@ -416,9 +429,55 @@ if (echo.wikipedia) {
         ? await getWikipediaSummary(wikiTitle)
         : null;
 
-    
-    content.innerHTML = `
+        const narrative =
+  buildNarrative(
+    echo.title,
+    wiki?.extract
+  );
+
+const discovered =
+  echo.discoveredAt
+    ? new Date(
+        echo.discoveredAt
+      ).toLocaleDateString()
+    : "Today";
+
+const closest =
+  echo.closestDistance
+    ? `${echo.closestDistance}m`
+    : "Unknown";
+
+const rarity = "📜 Common";
+
+const rarity =
+  getEchoRarity(echo);
+
+const discovered =
+  echo.discoveredAt
+    ? new Date(
+        echo.discoveredAt
+      ).toLocaleDateString()
+    : "Today";
+
+const closest =
+  echo.closestDistance
+    ? `${echo.closestDistance}m`
+    : "Unknown";    
+
+        content.innerHTML = `
+<div class="echo-card">
+
+  <div class="echo-rarity">
+    ${rarity}
+  </div>
+
   <h2>${echo.title}</h2>
+
+  <div class="echo-meta">
+    Discovered: ${discovered}
+    <br>
+    Closest Approach: ${closest}
+  </div>
 
   ${
     wiki?.thumbnail?.source
@@ -437,30 +496,27 @@ if (echo.wikipedia) {
     ${echo.type || "Historic Site"}
   </p>
 
-  <p>
-    ${
-      wiki?.extract ||
-      "No verified historical information available."
-    }
-  </p>
+<p>
+  ${narrative}
+</p>
 
-  
+  ${
+    wiki?.content_urls?.desktop?.page
+      ? `
+      <p>
+        <a
+          href="${wiki.content_urls.desktop.page}"
+          target="_blank"
+        >
+          Read Full Article
+        </a>
+      </p>
+      `
+      : ""
+  }
 
-      ${
-        wiki?.content_urls?.desktop?.page
-          ? `
-          <p>
-            <a
-              href="${wiki.content_urls.desktop.page}"
-              target="_blank"
-            >
-              Read Full Article
-            </a>
-          </p>
-          `
-          : ""
-      }
-    `;
+</div>
+`;
 
   } catch (error) {
 

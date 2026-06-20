@@ -215,10 +215,33 @@ header h1 {
   font-size: 12px;
 }
 
-.echo-image {
+/* .echo-image {
   width: 100%;
   max-height: 250px;
   object-fit: cover;
   border-radius: 12px;
   margin-bottom: 12px;
+} */
+
+.echo-image {
+  width: 100%;
+  border-radius: 12px;
+  margin: 12px 0;
+}
+
+.echo-card {
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.echo-rarity {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.echo-meta {
+  color: #666;
+  margin-bottom: 15px;
 }
